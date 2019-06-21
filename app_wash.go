@@ -1,34 +1,52 @@
 package main
 
-import ("fmt"; "net/http"; "io/ioutil"; "encoding/xml")
+import ("fmt"; "net/http"; "io/ioutil"; "encoding/xml"; "log"; "strings")
 
-// SitemapIndex is a struct to store sitemap data
+// SitemapIndex is a struct to store sitemap string
 type SitemapIndex struct {
   // remember to let go of any whitespase in xml slice
-  Locations []Location `xml:"sitemap"`
+  Locations []string `xml:"sitemap>loc"`
 }
 
-//Location is a slice inside sitemap, stores string between <loc> and </loc>
-type Location struct{
-  Loc string `xml:"loc"`
-}
-func (l Location) String() string {
-  return fmt.Sprintf(l.Loc)
+// News - store location from sitemap
+type News struct {
+  Articles []string `xml:"url>loc"`
 }
 
 func main(){
-  resp, _ := http.Get("https://www.washingtonpost.com/sitemaps/index.xml")
-  // resp, _ := http.Get("https://www.washingtonpost.com/sitemaps/world.xml")
-  bytes, _ := ioutil.ReadAll(resp.Body)
-  // str := string(bytes)
-  // fmt.Println(str)
-  resp.Body.Close()
-
   var s SitemapIndex
+  var n News
+  // nmap := make(map[string] NewsMap)
+
+  resp, err := http.Get("https://www.washingtonpost.com/sitemaps/index.xml")
+  if err != nil {
+    log.Fatalln(err)
+  }
+  bytes, err := ioutil.ReadAll(resp.Body)
+  if err != nil {
+    log.Fatalln(err)
+  }
   xml.Unmarshal(bytes, &s)
 
-  // fmt.Println(s)
-  for _, Location := range s.Locations {
-    fmt.Printf("\n%s", Location)
+  defer resp.Body.Close()
+
+  for _, loc := range s.Locations {
+    // added strings.TrimSpace after error
+    //: net/url: invalid control character in URL
+    // it was \r
+    resp, err := http.Get(strings.TrimSpace(loc))
+    if err != nil {
+      log.Fatalln(err)
+    }
+    bytes, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+      log.Fatalln(err)
+    }
+    xml.Unmarshal(bytes, &n)
+    for _, art := range n.Articles {
+      fmt.Println("\n\n")
+      fmt.Println(art)
+    }
   }
+
 }
