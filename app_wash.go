@@ -12,7 +12,9 @@ type SitemapIndex struct {
 type Location struct{
   Loc string `xml:"loc"`
 }
-
+func (l Location) String() string {
+  return fmt.Sprintf(l.Loc)
+}
 
 func main(){
   resp, _ := http.Get("https://www.washingtonpost.com/sitemaps/index.xml")
@@ -25,5 +27,8 @@ func main(){
   var s SitemapIndex
   xml.Unmarshal(bytes, &s)
 
-  fmt.Println(s.Locations)
+  // fmt.Println(s)
+  for _, Location := range s.Locations {
+    fmt.Printf("\n%s", Location)
+  }
 }
