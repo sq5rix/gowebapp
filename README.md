@@ -1,3 +1,5 @@
 Testing Go language
 
-sentdex ourse
+sentdex course
+
+Due to changes in xml format only locations are being recovered 

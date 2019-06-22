@@ -1,0 +1,7 @@
+<h1>{{ .Title }}</h1>
+<hr>
+
+{{ range  $value := .News.Articles }}
+  <p><a href="{{$value}}" target="_blank">{{$value}}</a></p>
+{{ end }}
+</p>
