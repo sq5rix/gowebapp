@@ -1,7 +1,6 @@
-<h1>{{ .Title }}</h1>
+<h1>{{.Title}}</h1>
 <hr>
 
-{{ range  $value := .News.Articles }}
-  <p><a href="{{$value}}" target="_blank">{{$value}}</a></p>
+{{ range  $title, $value := .News }}
+  <p><a href="{{$value}}" target="_blank">{{$title}}</a></p>
 {{ end }}
-</p>

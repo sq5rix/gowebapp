@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -21,8 +22,17 @@ type News struct {
 	Articles []string `xml:"url>loc"`
 }
 
-// news will go here
-var n News
+// NewsMap index it=s title, body is article
+// type NewsMap map[string]string
+
+// NewsStruct to pass to template
+type NewsStruct struct {
+	Title string
+	News  map[string]string
+}
+
+// Data pass to template
+var Data NewsStruct
 
 // Handler shows the Home Page
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -30,24 +40,26 @@ func Handler(w http.ResponseWriter, r *http.Request) {
                   <p>fun language</p> `)
 }
 
-// NewsAggPage for template
-type NewsAggPage struct {
-	Title string
-	News  News
+// FindTitle of article in the url
+func FindTitle(s string) string {
+	re := regexp.MustCompile(`([a-z0-9]+-)+[a-z0-9]+`)
+	return re.FindString(s)
 }
 
 func aggHandler(w http.ResponseWriter, r *http.Request) {
 
-	p := NewsAggPage{Title: "News Handler"}
-	p.News = n
-	fmt.Println(p.News)
+	fmt.Println(Data)
 	t, _ := template.ParseFiles("basic.html")
-	t.Execute(w, p)
+	t.Execute(w, Data)
 }
 
 func main() {
 
 	var s SitemapIndex
+	var n News
+
+	Data.Title = "Titles"
+	Data.News = make(map[string]string)
 
 	resp, err := http.Get("https://www.washingtonpost.com/sitemaps/index.xml")
 	if err != nil {
@@ -74,7 +86,13 @@ func main() {
 			log.Fatalln(err)
 		}
 		xml.Unmarshal(bytes, &n)
-		if idx >= 5 {
+		for _, v := range n.Articles {
+			i := FindTitle(string(v))
+			fmt.Println(i)
+			Data.News[i] = v
+		}
+
+		if idx >= 1 {
 			break
 		}
 	}
