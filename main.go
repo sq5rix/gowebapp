@@ -45,7 +45,9 @@ func FindTitle(s string) string {
 	re := regexp.MustCompile(`([a-z0-9]+-)+[a-z0-9]+`)
 	s = re.FindString(s)
 	s = strings.ReplaceAll(s, "-", " ")
-	return strings.Title(s)
+	s = strings.Title(s)
+	re = regexp.MustCompile(`\b\w{1,3}\b`)
+	return re.ReplaceAllStringFunc(s, strings.ToUpper)
 }
 
 func aggHandler(w http.ResponseWriter, r *http.Request) {
