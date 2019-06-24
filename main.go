@@ -43,7 +43,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 // FindTitle of article in the url
 func FindTitle(s string) string {
 	re := regexp.MustCompile(`([a-z0-9]+-)+[a-z0-9]+`)
-	return re.FindString(s)
+	s = re.FindString(s)
+	s = strings.ReplaceAll(s, "-", " ")
+	return strings.Title(s)
 }
 
 func aggHandler(w http.ResponseWriter, r *http.Request) {
